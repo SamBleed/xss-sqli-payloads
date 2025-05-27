@@ -1,35 +1,64 @@
 #!/bin/bash
 
+clear
+
+show_payloads() {
+  echo -e "\n📂 Payloads en $1:\n"
+  cat "$2"
+  echo -e "\nPresiona Enter para continuar..."
+  read
+}
+
+search_payloads() {
+  read -p "Introduce palabra clave para buscar: " keyword
+  echo -e "\nResultados para '$keyword':\n"
+  grep -i "$keyword" xss/*.txt sqli/*.txt || echo "No se encontraron coincidencias."
+  echo -e "\nPresiona Enter para continuar..."
+  read
+}
+
 while true; do
   clear
   echo "=== Payloads XSS & SQLi ==="
-  echo "1) Mostrar payloads XSS"
-  echo "2) Mostrar payloads SQLi"
+  echo "1) Ver payloads XSS"
+  echo "2) Ver payloads SQLi"
   echo "3) Buscar payload por palabra clave"
+  echo "4) Mostrar todos los payloads"
   echo "0) Salir"
   read -p "Elige una opción: " opcion
 
   case $opcion in
     1)
-      echo -e "\n📂 Payloads XSS:"
-      cat xss/payloads.txt
-      read -p $'\nPresiona Enter para continuar...'
+      clear
+      echo "Categorías XSS:"
+      select file in xss/*.txt "Volver"; do
+        if [[ $file == "Volver" ]]; then break; fi
+        show_payloads "$file" "$file"
+      done
       ;;
     2)
-      echo -e "\n📂 Payloads SQLi:"
-      cat sqli/payloads.txt
-      read -p $'\nPresiona Enter para continuar...'
+      clear
+      echo "Categorías SQLi:"
+      select file in sqli/*.txt "Volver"; do
+        if [[ $file == "Volver" ]]; then break; fi
+        show_payloads "$file" "$file"
+      done
       ;;
     3)
-      read -p "🔍 Ingresa la palabra clave a buscar: " clave
-      echo -e "\n🔎 Resultados en XSS:"
-      grep -i --color=always "$clave" xss/payloads.txt || echo "No se encontró en XSS."
-      echo -e "\n🔎 Resultados en SQLi:"
-      grep -i --color=always "$clave" sqli/payloads.txt || echo "No se encontró en SQLi."
-      read -p $'\nPresiona Enter para continuar...'
+      clear
+      search_payloads
+      ;;
+    4)
+      clear
+      echo "=== Todos los payloads XSS ==="
+      cat xss/*.txt
+      echo -e "\n=== Todos los payloads SQLi ==="
+      cat sqli/*.txt
+      echo -e "\nPresiona Enter para continuar..."
+      read
       ;;
     0)
-      echo "Saliendo..."
+      echo "¡Hasta luego!"
       exit 0
       ;;
     *)

