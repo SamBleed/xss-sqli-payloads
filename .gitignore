@@ -1,0 +1,11 @@
+# Archivos temporales de editores
+*.swp
+*.swo
+*.bak
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de logs
+*.log
