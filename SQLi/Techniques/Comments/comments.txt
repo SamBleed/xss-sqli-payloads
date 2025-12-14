@@ -1,0 +1,49 @@
+# =========================================================
+# TÉCNICAS SQLI DE COMENTARIOS Y TERMINACIÓN
+# =========================================================
+# Los comentarios se utilizan para neutralizar el resto de la sentencia SQL original
+# del servidor, lo que permite que el payload inyectado se ejecute sin errores de sintaxis.
+
+# 1. COMENTARIOS ESTÁNDAR DE MySQL/MariaDB
+# ----------------------------------------
+# Son los métodos más comunes. Se usan al final de un payload para ignorar lo que sigue (ej. una comilla final).
+
+# 1.1 Doble Guion y Espacio
+# NOTA: Requiere un espacio final para ser reconocido en muchas versiones de MySQL.
+# EJEMPLO: ?id=1' UNION SELECT 1,2,3 -- 
+
+# 1.2 Almohadilla / Hash
+# EJEMPLO: ?id=1' UNION SELECT 1,2,3 #
+
+# 2. COMENTARIOS MULTILÍNEA / INLINE (MySQL/MariaDB)
+# --------------------------------------------------
+# Útiles para inyectar payloads o evadir filtros que buscan palabras clave, 
+# ya que el contenido dentro del comentario es ignorado por la base de datos, 
+# pero puede contener el payload.
+
+# 2.1 Comentario de Bloque (Inline)
+# Se utiliza para ocultar un espacio o para inyectar código de forma furtiva.
+# EJEMPLO (Ocultando el espacio después de 'UNION'): ?id=1' UNION/**/SELECT 1,2,3 -- 
+
+# 2.2 Uso para ocultar palabras clave (Bypass de filtros)
+# Si el filtro bloquea 'SELECT', a veces se puede ofuscar con comentarios.
+# EJEMPLO: ?id=1' UNION/*!50000SELECT*/ 1,2,3 -- 
+# NOTA: /*!50000...*/ es una sintaxis específica de MySQL que ejecuta el código dentro 
+# si la versión de la DB es 5.0.00 o superior (el número se puede cambiar).
+
+# 3. COMENTARIOS EN MS SQL SERVER
+# -------------------------------
+# El estándar es el doble guion.
+
+# 3.1 Doble Guion
+# EJEMPLO: ?id=1' UNION SELECT 1,2 -- 
+
+# 4. COMENTARIOS EN PostgreSQL
+# -----------------------------
+# El estándar es el doble guion.
+
+# 4.1 Doble Guion
+# EJEMPLO: ?id=1' UNION SELECT 1,2 -- 
+
+# 4.2 C-Style Block Comment
+# EJEMPLO: ?id=1' UNION SELECT 1,2 /* Esto es ignorado */ --
