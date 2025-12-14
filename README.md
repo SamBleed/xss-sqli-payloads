@@ -1,56 +1,67 @@
-# 🔱 Payload Arsenal: SQLi & XSS (v2.0 Refactor)
+## 🛠️ README.md: Payload Arsenal (V2.0 Refactor) - Versión Práctica
 
-Colección organizada de **recursos y *payloads*** para la **Validación de Seguridad** y el **Pentesting Ético** de aplicaciones web. Este repositorio presenta una **re-arquitectura (v2.0)** del contenido, enfocada en la usabilidad profesional, la clasificación metodológica y la inclusión de guías de mitigación esenciales.
+# 🔥 Payload Arsenal: SQLi & XSS (v2.0 Refactor)
 
------
+Colección esencial y **estrictamente organizada** de *payloads* y recursos para cualquier *Pentester* o Desarrollador enfocado en la **seguridad ofensiva y defensiva de aplicaciones web**.
 
-## ⚠️ Descargo de Responsabilidad Ético (Disclaimer)
-
-El contenido de este repositorio tiene fines puramente **educativos y de seguridad defensiva**. Está diseñado para ser utilizado exclusivamente en entornos controlados, laboratorios de seguridad, o sistemas para los cuales el usuario tiene **permiso explícito, por escrito y legalmente vinculante** del propietario.
-
-**El uso de estos *payloads* para atacar sistemas sin autorización previa es ilegal, poco ético y constituye una violación de la política de uso de este proyecto.** El creador y los colaboradores no se hacen responsables de ningún uso indebido o daño causado por el contenido aquí provisto.
+Esta **V2.0** no es solo una lista de ataques; es un **flujo de trabajo** completo, re-arquitecturado para la eficiencia y, lo más importante, incluye **guías de mitigación** para construir defensas sólidas.
 
 -----
 
-## 🗂️ Estructura del Repositorio (V2.0)
+## 🛑 ¡Alto\! Descargo de Responsabilidad (Disclaimer)
 
-La estructura clasifica los recursos según la **vulnerabilidad**, la **técnica de explotación** y la **mitigación requerida**.
+Lee esto. La intención de este arsenal es **educativa y de prueba de seguridad legal**.
 
-### 💉 I. SQL Injection (SQLi)
+**Sólo tienes permiso para usar estos recursos en:**
 
-| Ruta | Clasificación | Propósito de Uso |
+  * Laboratorios de seguridad personal (VMs).
+  * Sistemas propios de tu propiedad.
+  * Sistemas de terceros **con permiso explícito, escrito y legalmente válido** (Bug Bounty o Contrato de Pentesting).
+
+**El uso ilegal o no autorizado es tu responsabilidad.** El creador y los colaboradores no tienen ninguna responsabilidad por el mal uso de las herramientas. ¡Hackea con ética\!
+
+-----
+
+## 🗂️ La Estructura V2.0: Del Ataque a la Defensa
+
+Hemos dividido el arsenal para cubrir el ciclo completo de la vulnerabilidad: Detección, Explotación y Mitigación.
+
+### 💉 I. Inyección SQL (SQLi)
+
+| Ruta | Clasificación | Uso Práctico |
 | :--- | :--- | :--- |
-| `SQLi/Payloads/` | **Extracción de Datos** | Contiene *payloads* base clasificados por el método de extracción (ej., **Error-Based**, **Union-Based**, **Time-Based**, **Boolean-Based**).  |
-| `SQLi/Techniques/` | **Evasión de Sentencia** | Técnicas para manipular la consulta SQL original (ej., `Comments`) para modificar o neutralizar el resto de la sentencia original. |
-| `SQLi/Defensive_Measures/` | **Mitigación y Defensa** | **[NUEVO]** Guías técnicas sobre la prevención de SQLi, incluyendo **Sentencias Preparadas** y el **Principio del Mínimo Privilegio**. |
+| `SQLi/Payloads/` | **Extracción de Datos** | *Payloads* base para la extracción de información. Organizados por la técnica de explotación: **Error-Based** (para *debug*), **Union-Based** (para la extracción directa), **Time-Based** y **Boolean-Based** (para *Blind SQLi* en entornos silenciosos).  |
+| `SQLi/Techniques/` | **Evasión de Sentencia** | Fragmentos y estructuras para **manipular la lógica de la consulta** (ej., el uso de `Comments` para omitir la cláusula `WHERE` del desarrollador). |
+| `SQLi/Defensive_Measures/` | **Mitigación | [CRUCIAL]** Guías técnicas sobre cómo cerrar la puerta. Incluye **Sentencias Preparadas** (la defensa \#1) y el **Principio del Mínimo Privilegio** (defensa de última línea). |
 
 ### 🌐 II. Cross-Site Scripting (XSS)
 
-| Ruta | Clasificación | Propósito de Uso |
+| Ruta | Clasificación | Uso Práctico |
 | :--- | :--- | :--- |
-| `XSS/Payloads/` | **Mecanismo Web** | *Payloads* clasificados por su ubicación de ejecución en el navegador: **Reflected**, **Stored**, y **DOM-Based**. |
-| `XSS/Evasion/` | **Filtros/WAF Bypass** | Técnicas avanzadas para eludir *Web Application Firewalls (WAF)* y filtros de entrada, clasificadas por: **Encoding**, **Context-Bypass** y **WAF-Bypass**. |
-| `XSS/Defensive_Measures/` | **Mitigación y Defensa** | **[NUEVO]** Guías técnicas cruciales sobre la **Codificación de Salida (Output Encoding)** basada en el contexto (HTML Body, JavaScript Data, etc.). |
+| `XSS/Payloads/` | **Mecanismo Web** | Payloads clasificados por dónde impactan: **Reflected** (vía URL), **Stored** (vía base de datos) y **DOM-Based** (vía JS del cliente). |
+| `XSS/Evasion/` | **Filtros/WAF Bypass** | Técnicas avanzadas para **esquivar filtros**. Clasificadas por el método: **Encoding** (codificación alternativa), **Context-Bypass** (cambio de contexto) y **WAF-Bypass** (evasión activa del firewall). |
+| `XSS/Defensive_Measures/` | **Mitigación | [CLAVE]** Guías técnicas sobre la única defensa efectiva: la **Codificación de Salida (Output Encoding)**, específica para cada contexto de renderizado (HTML, JS, URL). |
 
 -----
 
-## 🔗 Metodología de Uso (Flujo de Trabajo)
+## 🔗 Flujo de Trabajo (Metodología Práctica)
 
-Este repositorio apoya el ciclo de *Pentesting* con un enfoque en la **precisión** y la **prevención**:
+Este es el orden recomendado para usar este arsenal en un entorno de pruebas:
 
-1.  **Detección y Clasificación:** Usar *payloads* iniciales de bajo impacto para confirmar la vulnerabilidad y clasificar el tipo exacto (ej. Union-Based, Reflected).
-2.  **Explotación Controlada:** Seleccionar *payloads* de las carpetas `Payloads/` para la extracción de datos o la prueba de ejecución de código.
-3.  **Análisis de Filtros:** Si la prueba inicial falla, investigar la carpeta `Evasion/` para aplicar la codificación o la técnica de *bypass* adecuada.
-4.  **Validación Defensiva:** Consultar `Defensive_Measures/` para entender la solución de código fuente correcta y validar que la aplicación la implemente correctamente.
-5.  **Automatización:** Utilizar `toolkit.sh` para la prueba sistemática de los *payloads* en un entorno *fuzzing* autorizado.
+1.  **Reconocimiento:** Usa un *payload* básico (`'`) para detectar un fallo en la lógica de la consulta.
+2.  **Identificación:** Confirma si la falla es SQLi, XSS, o un fallo en el lado del cliente (DOM).
+3.  **Ataque Dirigido:** Selecciona el *payload* más limpio y específico de la carpeta `Payloads/`.
+4.  **Adaptación (Evasión):** Si un WAF o filtro bloquea el intento, usa las técnicas de `Evasion/` para refinar el *payload* y probar de nuevo.
+5.  **Reporte y Parcheo:** Consulta **`Defensive_Measures/`** para documentar **cómo el desarrollador debe corregir la vulnerabilidad de manera definitiva.**
+6.  **Automatización:** Usa `toolkit.sh` para una prueba sistemática y repetible.
 
 -----
 
-## ⚙️ Utilidades y Herramientas
+## ⚙️ Utilidades Clave
 
-### `toolkit.sh` (Script Maestro)
+### `toolkit.sh` (El Motor de Fuzzing)
 
-Diseñado para automatizar el *fuzzing* de parámetros. Este script permite probar colecciones completas de *payloads* (`.txt`) contra un punto final de prueba:
+Este script es tu herramienta de prueba masiva. Carga una lista completa de *payloads* de cualquier `.txt` y los dispara contra un *endpoint* de prueba autorizado:
 
 ```bash
 ./toolkit.sh <ruta_al_payloads.txt> <URL_base> <nombre_del_parametro>
@@ -58,15 +69,13 @@ Diseñado para automatizar el *fuzzing* de parámetros. Este script permite prob
 
 ### `organize.sh`
 
-Script de utilidad para mantener los archivos `.txt` de *payloads* ordenados, limpiar duplicados o aplicar un formato de comentario estándar.
+Mantén el arsenal limpio. Útil para la estandarización del formato y la eliminación de duplicados antes de contribuir.
 
 -----
 
 ## 📝 Contribución y Licencia
 
-Agradecemos cualquier contribución que siga la estructura de clasificación V2.0 y añada guías de mitigación claras.
+Tu ayuda es bienvenida. Si añades un *payload* o una técnica de mitigación, asegúrate de que encaje en la clasificación V2.0 y sea **funcional**.
 
-  * Lee el archivo `CONTRIBUTING.md` antes de enviar un *Pull Request*.
-  * Este proyecto está bajo la licencia especificada en `LICENSE`.
-
------
+  * Consulta `CONTRIBUTING.md` para las pautas de envío.
+  * Licencia: Especificada en `LICENSE`.
