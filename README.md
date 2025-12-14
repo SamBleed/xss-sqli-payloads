@@ -18,17 +18,17 @@ La nueva estructura clasifica los *payloads* rigurosamente según el **tipo de v
 
 ### 💉 I. SQL Injection (SQLi)
 
-| Ruta | Clasificación | Propósito de Uso |
-| :--- | :--- | :--- |
-| `SQLi/Payloads/` | **Extracción de Datos** | Contiene payloads base clasificados por el método de extracción: **Error-Based**, **Union-Based**, **Time-Based** y **Boolean-Based**.  |
-| `SQLi/Techniques/` | **Evasión de Sentencia** | Contiene técnicas para manipular la consulta SQL (ej., `Comments`) para neutralizar el resto de la sentencia original. |
+| Ruta                  | Clasificación            | Propósito de Uso |
+|-----------------------|--------------------------|------------------|
+| `SQLi/Payloads/`      | **Extracción de Datos**  | Contiene payloads base clasificados por el método de extracción: **Error-Based**, **Union-Based**, **Time-Based** y **Boolean-Based**. |
+| `SQLi/Techniques/`    | **Evasión de Sentencia** | Contiene técnicas para manipular la consulta SQL (ej., `Comments`) para neutralizar el resto de la sentencia original. |
 
 ### 🌐 II. Cross-Site Scripting (XSS)
 
-| Ruta | Clasificación | Propósito de Uso |
-| :--- | :--- | :--- |
-| `XSS/Payloads/` | **Mecanismo Web** | Payloads clasificados por su ubicación de ejecución: **Reflected**, **Stored**, y **DOM-Based**.  |
-| `XSS/Evasion/` | **Filtros/WAF Bypass** | Técnicas avanzadas para eludir defensas, clasificadas por: **Encoding** (codificaciones), **Context-Bypass** (escape de contextos HTML/JS) y **WAF-Bypass** (ofuscación general). |
+| Ruta               | Clasificación             | Propósito de Uso |
+|--------------------|---------------------------|------------------|
+| `XSS/Payloads/`    | **Mecanismo Web**         | Payloads clasificados por su ubicación de ejecución: **Reflected**, **Stored**, y **DOM-Based**. |
+| `XSS/Evasion/`     | **Filtros/WAF Bypass**    | Técnicas avanzadas para eludir defensas, clasificadas por: **Encoding** (codificaciones), **Context-Bypass** (escape de contextos HTML/JS) y **WAF-Bypass** (ofuscación general). |
 
 ---
 
@@ -36,20 +36,20 @@ La nueva estructura clasifica los *payloads* rigurosamente según el **tipo de v
 
 El flujo recomendado para el uso de estos *payloads* sigue una metodología de Pen-Testing estructurada:
 
-1.  **Detección (Fuzzing):**
-    * Usar un *payload* de bajo impacto (ej. `XSS/Payloads/Reflected/reflected_payloads.txt` o `SQLi/Payloads/Boolean_Based/boolean_based_payloads.txt` con `AND 1=1 --`) para confirmar la presencia de una vulnerabilidad.
+1. **Detección (Fuzzing):**
+   - Usar un *payload* de bajo impacto (ej. `XSS/Payloads/Reflected/reflected_payloads.txt` o `SQLi/Payloads/Boolean_Based/boolean_based_payloads.txt` con `AND 1=1 --`) para confirmar la presencia de una vulnerabilidad.
 
-2.  **Clasificación y Contexto:**
-    * Determinar el tipo exacto (ej., XSS Reflejado en un atributo `href`, o SQLi Ciego Booleano).
+2. **Clasificación y Contexto:**
+   - Determinar el tipo exacto (ej., XSS Reflejado en un atributo `href`, o SQLi Ciego Booleano).
 
-3.  **Explotación (Payload Específico):**
-    * Seleccionar el payload más adecuado de las subcarpetas (ej. `SQLi/Payloads/Union_Based/` si la extracción de datos es visible).
+3. **Explotación (Payload Específico):**
+   - Seleccionar el payload más adecuado de las subcarpetas (ej. `SQLi/Payloads/Union_Based/` si la extracción de datos es visible).
 
-4.  **Evasión (Si hay Filtros):**
-    * Si el payload falla, recurrir a las carpetas `XSS/Evasion/` o `SQLi/Techniques/` para aplicar codificación o técnicas de *context break*.
+4. **Evasión (Si hay Filtros):**
+   - Si el payload falla, recurrir a las carpetas `XSS/Evasion/` o `SQLi/Techniques/` para aplicar codificación o técnicas de *context break*.
 
-5.  **Automatización:**
-    * Usar `toolkit.sh` para probar listas completas de *payloads* en un parámetro de entrada.
+5. **Automatización:**
+   - Usar `toolkit.sh` para probar listas completas de *payloads* en un parámetro de entrada.
 
 ---
 
@@ -62,23 +62,66 @@ Este script (`toolkit.sh`) permite tomar una lista de *payloads* desde cualquier
 **Uso:**
 
 ```bash
-# Ejemplo: Probar todos los payloads de XSS reflejado en el parámetro 'q'
-./Utils/toolkit.sh ./XSS/Type/reflected.txt "[http://target.com/search](http://target.com/search)" "q"
+# SINTAXIS: ./toolkit.sh <ruta_al_payloads.txt> <URL_base> <nombre_del_parametro>
 
-
-Flujo de Trabajo (Aprochear)
-Detección: Usar SQLi/Type/general_payloads.txt o XSS/Type/reflected.txt para encontrar un endpoint vulnerable.
-
-Clasificación: Determinar si la vulnerabilidad es de Blind SQLi o XSS Almacenado.
-
-Explotación: Utilizar el payload específico de la carpeta Technique o Evasion (ej. SQLi/Technique/blind_timebased.txt).
-
-Automatización: Usar Utils/toolkit.sh para probar listas completas en un parámetro de entrada.
-
-
+# Ejemplo: Probar payloads de XSS reflejado en el parámetro 'query'
+./toolkit.sh ./XSS/Payloads/Reflected/reflected_payloads.txt "http://target.com/search" "query"
+```
 📝 Contribución y Licencia
 Agradecemos cualquier contribución que siga esta estructura de clasificación V2.0.
 
 Por favor, lee CONTRIBUTING.md antes de enviar un Pull Request.
 
 Este proyecto está bajo la Licencia LICENSE.
+
+📄 Guía de Contribución (CONTRIBUTING.md)
+
+```Markdown
+# Guía de Contribución para XSS-SQLI-PAYLOADS
+
+¡Gracias por querer contribuir a este arsenal! Para mantener la alta calidad y la estructura organizada (V2.0) del repositorio, por favor sigue las siguientes pautas.
+
+## 1. Principios de Contribución
+
+* **Relevancia:** El payload debe ser funcional y aplicable en escenarios reales de Pen-Testing o Bug Hunting.
+* **Originalidad:** Asegúrate de que el payload no exista ya en la carpeta de destino.
+* **Contexto:** El valor de un payload reside en su explicación. Siempre incluye una descripción clara del contexto de vulnerabilidad que está diseñado para explotar o evadir.
+
+## 2. Estructura y Ubicación de Archivos
+
+Tu contribución debe ser colocada en la carpeta más específica y apropiada de la estructura V2.0.
+
+| Tipo de Payload | Ubicación de Ejemplo | Descripción Requerida |
+| :--- | :--- | :--- |
+| **SQLi Ciego Booleano** | `SQLi/Payloads/Boolean_Based/` | Debe indicar si es para MySQL, MSSQL o PostgreSQL. |
+| **XSS de Contexto JS** | `XSS/Evasion/Context_Bypass/` | Debe explicar cómo rompe la variable (ej., cerrando comilla simple `'`). |
+| **Payload con Encoded Hex** | `XSS/Evasion/Encoding/` | Debe indicar la codificación utilizada y qué filtro está diseñado para evadir. |
+
+## 3. Formato de Contenido
+
+Dentro del archivo `.txt` correspondiente, el nuevo payload debe seguir el siguiente formato estándar para garantizar la claridad:
+
+
+```markdown
+# [Número Secuencial]. [Breve Descripción del Payload]
+# Contexto: [Describe la situación vulnerable, ej. Input reflejado en un atributo 'value' de un <input>.]
+# Bypass: [Describe el filtro que está evadiendo, ej. Filtro de lista negra de <script>.]
+[TU_PAYLOAD_AQUÍ]
+```
+Ejemplo de formato:
+
+```Markdown
+# 10. Uso de <details> y evento ontoggle
+# Contexto: El input está en un <div> y el filtro bloquea 'onclick' y 'onerror'.
+# Bypass: Utiliza un evento moderno ('ontoggle') y un tag de cierre opcional (<details>).
+<details open ontoggle=alert(1)>
+```
+4. Proceso de Envío (Pull Request)
+Haz un fork del repositorio.
+
+Crea una nueva rama (git checkout -b feature/nuevo-payload-xss).
+
+Añade tu payload al archivo .txt correcto, siguiendo el formato.
+
+Crea el Pull Request (PR) en GitHub. En la descripción del PR, resume los payloads añadidos y su propósito.
+
