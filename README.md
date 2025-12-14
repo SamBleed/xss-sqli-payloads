@@ -62,7 +62,23 @@ Este script (`toolkit.sh`) permite tomar una lista de *payloads* desde cualquier
 **Uso:**
 
 ```bash
-# SINTAXIS: ./toolkit.sh <ruta_al_payloads.txt> <URL_base> <nombre_del_parametro>
+# Ejemplo: Probar todos los payloads de XSS reflejado en el parámetro 'q'
+./Utils/toolkit.sh ./XSS/Type/reflected.txt "[http://target.com/search](http://target.com/search)" "q"
 
-# Ejemplo: Probar payloads de XSS reflejado en el parámetro 'query'
-./toolkit.sh ./XSS/Payloads/Reflected/reflected_payloads.txt "[http://target.com/search](http://target.com/search)" "query"
+
+Flujo de Trabajo (Aprochear)
+Detección: Usar SQLi/Type/general_payloads.txt o XSS/Type/reflected.txt para encontrar un endpoint vulnerable.
+
+Clasificación: Determinar si la vulnerabilidad es de Blind SQLi o XSS Almacenado.
+
+Explotación: Utilizar el payload específico de la carpeta Technique o Evasion (ej. SQLi/Technique/blind_timebased.txt).
+
+Automatización: Usar Utils/toolkit.sh para probar listas completas en un parámetro de entrada.
+
+
+📝 Contribución y Licencia
+Agradecemos cualquier contribución que siga esta estructura de clasificación V2.0.
+
+Por favor, lee CONTRIBUTING.md antes de enviar un Pull Request.
+
+Este proyecto está bajo la Licencia LICENSE.
